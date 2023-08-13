@@ -34,18 +34,26 @@ async def on_ready():
 async def on_message(message):
     """
     This function runs every time a message is posted in the server.
-    If the message's channel is a child of the main forum channel, the bot responds.
+    If the message's channel is a child of the main forum channel and it's the first message in the channel,
+    the bot responds.
     """
     if not message.author.bot:  # Ensure the message is not from a bot
         # If the message's channel parent matches our forum channel ID
         if message.channel.parent_id == int(FORUM_CHANNEL_ID):
-            guild = discord.utils.get(bot.guilds, id=int(GUILD_ID))
-            role = discord.utils.get(guild.roles, name=ROLE_NAME)
-            await message.channel.send(f"New {role.mention} episode in the works.")
+
+            # Check if the message timestamp and channel creation timestamp are close enough
+            time_difference = message.created_at - message.channel.created_at
+            if time_difference.total_seconds() < 1:  # Assuming a difference of less than 1 second indicates it's the initial post
+
+                guild = discord.utils.get(bot.guilds, id=int(GUILD_ID))
+                role = discord.utils.get(guild.roles, name=ROLE_NAME)
+                await message.channel.send(f"New {role.mention} episode in the works.")
+            else:
+                logger.debug(f"Subsequent message detected from {message.author.name} in channel {message.channel.id}. Ignoring.")
         else:
             logger.debug(f"Message detected from {message.author.name} in channel {message.channel.id}. Ignoring.")
 
-    # Process any commands that might be in the message (though in this case, you don't have any specific commands)
+    # Process any commands that might be in the message
     await bot.process_commands(message)
 
 # Run the bot using the token from the environment variable

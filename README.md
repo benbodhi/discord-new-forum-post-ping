@@ -58,7 +58,7 @@ This Discord bot is designed to post a message and ping a specified role wheneve
 3. **Install Dependencies**
 
    ```bash
-   pip install discord.py python-dotenv
+   pip install -r requirements.txt
    ```
 
 4. **Environment Variables**
